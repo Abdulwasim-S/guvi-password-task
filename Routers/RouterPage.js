@@ -3,6 +3,7 @@ import { LogInSchema, UserSchema } from '../Helpers/MongooseSchema.js';
 import { generateToken } from '../Helpers/Generatetoken.js';
 import { isAuth } from '../Helpers/isAuth.js';
 import nodemailer from 'nodemailer';
+import { generateHashedPassword, verifyHashedPassword } from '../Helpers/HashPassword.js';
 
 const router = express.Router();
 
@@ -12,8 +13,8 @@ router.get('/login',async(req,res)=>{
         if(!user){
             return res.status(500).json({message:"Invalid credential"});
         }
-        const userPassword = user.password;
-        if(userPassword !== req.body.password){
+        const password = await verifyHashedPassword(req.body.password,user.password);
+        if(!password){
             return res.status(500).json({message:"Invalid credential"});
         }
         res.status(200).json({message:"LogIn success"})
@@ -62,7 +63,8 @@ router.put('/resetpassword',isAuth,async(req,res)=>{
         if(!user){
             return res.status(500).json({message:"Invalid credential"});
         }
-        const updatedUser = await LogInSchema.updateOne({email:req.body.email},{$set:{"password":req.body.password}});
+        const password = await generateHashedPassword(req.body.password);
+        const updatedUser = await LogInSchema.updateOne({email:req.body.email},{$set:{"password":password}});
         res.status(200).json({message:"Updated Success",updatedUser});
         
     } catch (error) {
@@ -75,10 +77,11 @@ router.post('/signup',async(req,res)=>{
         if(user){
             return res.status(500).json({message:"user already exist"})
         }
+        const password = await generateHashedPassword(req.body.password);
         const newUser = await UserSchema({
             username:req.body.username,
             email:req.body.email,
-            password:req.body.password
+            password:password
         }).save();
         res.status(200).json({message:"SignUp success",newUser})
 

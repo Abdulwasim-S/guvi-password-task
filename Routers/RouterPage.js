@@ -7,7 +7,7 @@ import { generateHashedPassword, verifyHashedPassword } from '../Helpers/HashPas
 
 const router = express.Router();
 
-router.get('/login',async(req,res)=>{
+router.post('/login',async(req,res)=>{
     try {
         const user = await LogInSchema.findOne({email:req.body.email});
         if(!user){
@@ -22,7 +22,7 @@ router.get('/login',async(req,res)=>{
         res.status(400).json({message:'Cant get',error})
     }
 })
-router.get('/forgetpassword',async(req,res)=>{
+router.post('/forgetpassword',async(req,res)=>{
     try {
         const user = await LogInSchema.findOne({email:req.body.email});
         if(!user){

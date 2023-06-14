@@ -43,7 +43,7 @@ router.post('/forgetpassword',async(req,res)=>{
             to: req.body.email,
             subject: "Password reset", 
             text: "Password reset", 
-            html: "<button>Click here to reset</button>", 
+            html: "<a>Click the link to resetpassword</a><p>https://forget-password-frontend.vercel.app/resetpassword</p>", 
           }
 
         let transporter = nodemailer.createTransport(mailCreate);
